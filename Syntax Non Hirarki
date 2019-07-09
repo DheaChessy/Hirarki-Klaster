@@ -1,0 +1,104 @@
+#Mengaktifkan Library
+library(factoextra)
+library(gridExtra)
+
+#Memasukan Data
+Dheachessy=read.delim("clipboard")
+Dheachessy
+summary(Dheachessy)
+
+#Corelation Distance
+#Jarak antara objek yang satu dengan yang lain
+distance<-get_dist(Dheachessy[,1:6])
+distance
+fviz_dist(distance, gradient=list(low="green", mid="white",high="red"))
+
+#K-Means Clustering
+kluster<-kmeans(Dheachessy[,1:6], centers = 2, nstart = 25) #nstart nya diubah minimal 3 kali
+kluster
+kluster$cluster
+kluster$centers
+kluster$totss
+#jarak dalam kluster
+kluster$withinss
+kluster$tot.withinss
+#jarak antar kluster
+kluster$betweens
+kluster$size
+str(kluster)
+
+k= data.frame(kluster$cluster)
+View(k)
+k
+fviz_cluster(kluster, data=Dheachessy[1:6])
+
+#Comparing The Result
+k2<-kmeans(Dheachessy[1:6], centers = 2, nstart = 25)
+k3<-kmeans(Dheachessy[1:6], centers = 3, nstart = 25)
+k4<-kmeans(Dheachessy[1:6], centers = 4, nstart = 25)
+k5<-kmeans(Dheachessy[1:6], centers = 5, nstart = 25)
+
+p1 <- fviz_cluster(k2, geom = "point", data=Dheachessy[1:6]) + ggtitle("k=2")
+p2 <- fviz_cluster(k3, geom = "point", data=Dheachessy[1:6]) + ggtitle("k=3")
+p3 <- fviz_cluster(k4, geom = "point", data=Dheachessy[1:6]) + ggtitle("k=4")
+p4 <- fviz_cluster(k5, geom = "point", data=Dheachessy[1:6]) + ggtitle("k=5")
+
+library(gridExtra)
+grid.arrange(p1, p2, p3, p4, nrow=2)
+
+#determining optimal clusters
+fviz_nbclust(Dheachessy[1:6], kmeans, method = "wss")
+fviz_nbclust(Dheachessy[1:6], kmeans, method = "silhouette")
+
+#dengan scaling data#
+
+data=read.delim("clipboard")
+data
+data <- na.omit(data)
+summary(data)
+
+sapply(Dheachessy[1:6],var)
+rge<-sapply(Dheachessy[1:6],function(x) diff(range(x)))
+data1<-sweep(Dheachessy[1:6],2,rge,FUN = "/")
+sapply(data1,var)
+
+#Correlation Distance
+library(factoextra)
+distance<-get_dist(data1)
+distance
+fviz_dist(distance,gradient=list(low="white", mid="green", high="red"))
+
+#K-Means Clustering
+kluster<-kmeans(data1, centers = 2, nstart = 25)
+kluster
+kluster$cluster
+kluster$centers
+kluster$totss
+kluster$withinss
+kluster$tot.withinss
+kluster$betweens
+kluster$size
+
+k= data.frame(kluster$cluster)
+View(k)
+k
+
+fviz_cluster(kluster, data=data1)
+
+#Comparing The Result
+k2<-kmeans(data1, centers = 2, nstart = 35)
+k3<-kmeans(data1, centers = 3, nstart = 35)
+k4<-kmeans(data1, centers = 4, nstart = 35)
+k5<-kmeans(data1, centers = 5, nstart = 35)
+
+p1 <- fviz_cluster(k2, geom = "point", data=data1) + ggtitle("k=2")
+p2 <- fviz_cluster(k3, geom = "point", data=data1) + ggtitle("k=3")
+p3 <- fviz_cluster(k4, geom = "point", data=data1) + ggtitle("k=4")
+p4 <- fviz_cluster(k5, geom = "point", data=data1) + ggtitle("k=5")
+
+library(gridExtra)
+grid.arrange(p1, p2, p3, p4, nrow=2)
+
+#determining optimal clusters
+fviz_nbclust(data1, kmeans, method = "wss")
+fviz_nbclust(data1, kmeans, method = "silhouette")
